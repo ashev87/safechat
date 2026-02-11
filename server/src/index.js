@@ -12,7 +12,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { nanoid } from 'nanoid';
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // In-memory room storage (ephemeral)
 const rooms = new Map();
