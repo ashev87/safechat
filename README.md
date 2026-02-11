@@ -1,194 +1,130 @@
-# 🔒 SafeChat - True End-to-End Encrypted Chat
+# 🔒 SafeChat
 
-A truly secure, anonymous chat application with real E2E encryption and WebRTC voice/video calls. Unlike competitors, the server has **ZERO** knowledge of message contents.
+**Truly secure, anonymous chat with real end-to-end encryption.**
 
-## 🌟 Features
+Unlike other "secure" chat apps that claim E2E but use shared keys or send data to external services, SafeChat implements cryptographically sound encryption where the server has **zero knowledge** of your messages.
 
-- ✅ **True E2E Encryption** - X25519 + XChaCha20-Poly1305
-- ✅ **Zero Knowledge Server** - Server only relays encrypted blobs
-- ✅ **No Registration** - Anonymous access, no accounts needed
-- ✅ **Real-time Chat** - Socket.IO powered messaging
-- ✅ **WebRTC Calls** - Voice and video calls (coming soon)
-- ✅ **Dark Mode** - Beautiful UI with Tailwind CSS
-- ✅ **Mobile Responsive** - Works on all devices
-- ✅ **No Storage** - Messages exist only in browser memory
+![SafeChat](https://img.shields.io/badge/E2E-X25519%20%2B%20XSalsa20-green) ![License](https://img.shields.io/badge/license-MIT-blue)
 
-## 🛡️ Security Model
+## ✨ Features
 
-### Encryption Flow
-1. Each user generates an X25519 keypair on room join
-2. Public keys are exchanged via the server
-3. Shared secrets are derived using Diffie-Hellman
-4. Messages are encrypted with XChaCha20-Poly1305
-5. Server receives only encrypted blobs - cannot decrypt
+- 🔐 **Real E2E Encryption** - X25519 key exchange + XSalsa20-Poly1305
+- 👤 **Anonymous** - No accounts, no registration
+- 🚫 **Zero Knowledge** - Server only relays encrypted blobs it cannot read
+- 📞 **Voice & Video Calls** - WebRTC peer-to-peer (encrypted by default)
+- 📱 **Mobile Friendly** - Responsive design, PWA installable
+- 🔢 **Safety Numbers** - Verify encryption with your contacts
+- ⏱️ **Ephemeral** - Messages disappear when room closes
 
-### Key Principles
-- **Zero Knowledge Server**: Server only relays encrypted data
-- **Perfect Forward Secrecy**: Keys exist only in memory
-- **Fail Secure**: Encryption errors block messages (never plaintext)
-- **No Tracking**: No analytics, cookies, or surveillance
+## 🔒 Security Model
+
+```
+User A                     Server                    User B
+   │                          │                         │
+   │──Generate X25519 keys────│                         │
+   │                          │────Generate X25519 keys─│
+   │                          │                         │
+   │◄───Exchange public keys──│─────────────────────────│
+   │                          │                         │
+   │  Derive shared secret    │                         │
+   │  (Diffie-Hellman)        │     Derive shared secret│
+   │                          │                         │
+   │──Encrypt with XSalsa20───│───Relay encrypted blob──│
+   │    (Server cannot read!) │                         │
+```
+
+**Key differences from fake "E2E" apps:**
+- Keys generated per-user (not shared via `NEXT_PUBLIC_` env vars)
+- Server never has access to encryption keys
+- No AI features that send plaintext to external services
+- Encryption failure = message blocked (never falls back to plaintext)
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18+ or Bun
-- npm or bun package manager
+### Development
 
-### Installation
-
-1. **Clone the repository**
 ```bash
+# Clone
 git clone https://github.com/ashev87/safechat.git
 cd safechat
-```
 
-2. **Start the server**
-```bash
+# Start server
 cd server
 npm install
 npm run dev
-```
-Server runs on `http://localhost:3001`
 
-3. **Start the client** (in another terminal)
-```bash
+# Start client (new terminal)
 cd client
 npm install
 npm run dev
-```
-Client runs on `http://localhost:3000`
 
-4. **Open browser**
-Visit `http://localhost:3000` and create a room!
-
-## 📁 Project Structure
-
-```
-safechat/
-├── client/              # Next.js frontend
-│   ├── src/
-│   │   ├── app/         # Pages (home, room)
-│   │   ├── components/  # UI components
-│   │   ├── lib/         # Crypto, socket utilities
-│   │   ├── stores/      # Zustand state management
-│   │   └── hooks/       # React hooks
-│   └── package.json
-│
-├── server/              # Node.js backend
-│   ├── src/
-│   │   └── index.js     # Socket.IO relay server
-│   └── package.json
-│
-└── README.md
+# Open http://localhost:3000
 ```
 
-## 🔐 Tech Stack
+### Production Deployment
 
-### Frontend
-- **Framework**: Next.js 15 (App Router)
-- **UI**: TailwindCSS 4 + shadcn/ui
-- **State**: Zustand
-- **Crypto**: tweetnacl (libsodium port)
-- **WebRTC**: simple-peer
-- **Real-time**: Socket.IO client
-
-### Backend
-- **Runtime**: Node.js (Bun compatible)
-- **WebSocket**: Socket.IO
-- **Storage**: In-memory only (ephemeral)
-
-## 🌐 Deployment
-
-### Vercel (Frontend)
+**Client (Vercel):**
 ```bash
 cd client
 vercel deploy --prod
 ```
 
-### Railway/Fly.io (Backend)
+**Server (Railway/Fly.io):**
 ```bash
 cd server
-# Follow Railway or Fly.io deployment guide
+# Deploy via Railway CLI or Dockerfile
 ```
 
-Set environment variable:
-- `CLIENT_URL`: Your frontend URL (e.g., `https://safechat.vercel.app`)
-
-## 🔧 Environment Variables
-
-### Client (.env.local)
+**Environment Variables:**
 ```env
-NEXT_PUBLIC_SERVER_URL=http://localhost:3001
+# Client (.env.local)
+NEXT_PUBLIC_SERVER_URL=https://your-server.railway.app
+
+# Server (.env)
+CORS_ORIGIN=https://your-client.vercel.app
+PORT=5000
 ```
 
-### Server (.env)
-```env
-PORT=3001
-CLIENT_URL=http://localhost:3000
+## 📁 Project Structure
+
+```
+safechat/
+├── client/              # Next.js 15 frontend
+│   ├── src/
+│   │   ├── app/         # Pages (home, room)
+│   │   ├── lib/         # Crypto, Socket.IO
+│   │   ├── stores/      # Zustand state
+│   │   └── components/  # UI components
+│   └── package.json
+│
+├── server/              # Bun/Node.js backend
+│   └── src/
+│       └── index.ts     # Socket.IO relay
+│
+└── ARCHITECTURE.md      # Full technical design
 ```
 
-## 📝 Usage
+## 🛡️ Tech Stack
 
-1. **Create Room**: Click "Create New Room" on home page
-2. **Share Link**: Copy the room URL and share with others
-3. **Chat Securely**: Messages are automatically encrypted
-4. **Verify Security**: Check safety numbers with your peer
+| Component | Technology |
+|-----------|------------|
+| Frontend | Next.js 15, React 19, TailwindCSS |
+| State | Zustand |
+| Encryption | tweetnacl (libsodium port) |
+| Real-time | Socket.IO |
+| Calls | WebRTC (simple-peer) |
+| Server | Bun/Node.js |
 
-## 🛠️ Development
+## 📜 License
 
-### Run tests
-```bash
-cd client
-npm test
-```
-
-### Build for production
-```bash
-cd client
-npm run build
-
-cd ../server
-npm start
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🔗 Links
-
-- **GitHub**: https://github.com/ashev87/safechat
-- **Issues**: https://github.com/ashev87/safechat/issues
-- **Author**: Andriy Shevchenko
-
-## ⚠️ Security Notice
-
-While SafeChat implements strong encryption, it's designed for educational purposes. For production use:
-- Conduct a security audit
-- Implement rate limiting
-- Add HTTPS/WSS in production
-- Consider adding authentication for private rooms
-- Implement perfect forward secrecy with session key rotation
+MIT - See [LICENSE](LICENSE)
 
 ## 🙏 Acknowledgments
 
-- [TweetNaCl.js](https://github.com/dchest/tweetnacl-js) - Cryptography library
-- [Socket.IO](https://socket.io/) - Real-time communication
-- [Next.js](https://nextjs.org/) - React framework
-- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [TweetNaCl.js](https://tweetnacl.js.org/) - Cryptographic library
+- [Socket.IO](https://socket.io/) - Real-time engine
+- [simple-peer](https://github.com/feross/simple-peer) - WebRTC wrapper
 
 ---
 
 **Built with security as the foundation, not an afterthought.**
-
-*SafeChat - Where privacy isn't just a feature, it's the architecture.*
