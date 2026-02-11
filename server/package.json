@@ -1,0 +1,15 @@
+{
+  "name": "safechat-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.1",
+    "nanoid": "^5.0.9",
+    "cors": "^2.8.5"
+  }
+}
